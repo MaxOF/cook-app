@@ -1,4 +1,9 @@
 {
+  "parser": "typescript",
+  "trailingComma": "none",
   "singleQuote": true,
-  "trailingComma": "all"
+  "arrowParens": "avoid",
+  "endOfLine": "auto",
+  "printWidth": 100,
+  "tabWidth": 4
 }
