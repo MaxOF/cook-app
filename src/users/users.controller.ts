@@ -15,6 +15,11 @@ export class UsersController {
         this.usersService.create(createUserDto)
     }
 
+    @Get(':name')
+    async findOne(@Param('name') name: string) {
+      return this.usersService.findOne(name)
+    }
+
     @Get()
     async findAll(): Promise<User[]> {
         return this.usersService.findAll();
