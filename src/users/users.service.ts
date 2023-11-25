@@ -1,41 +1,43 @@
-import { Injectable } from "@nestjs/common";
-import { User } from "./interfaces/users.controller.interface";
-import { UpdateUserDto } from "./dto/updateUser.dto";
+import {Injectable} from "@nestjs/common";
+//import {User} from "./interfaces/users.controller.interface";
+import {UpdateUserDto} from "./dto/updateUser.dto";
+import {InjectRepository} from "@nestjs/typeorm";
+import {User} from "./user.entity"
+import {Repository, UpdateResult} from "typeorm";
+import {CreateUserDto} from "./dto/create-users.dto";
 
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [
-      {id: 1, name: "Denis", email: "asds@mail.ru", password: "asd"},
-      {id: 2, name: "Max", email: "asds@mail.ru", password: "asd"},
-      {id: 3, name: "Alex", email: "asds@mail.ru", password: "asd"},
-  ];
+    constructor(
+        @InjectRepository(User)
+        private usersRepository: Repository<User>,
+    ) {}
 
-  create(user: User) {
-    this.users.push(user);
-  }
+    create(createUserDto: CreateUserDto): Promise<User> {
+        const user = new User();
+        user.name = createUserDto.name;
+        user.email = createUserDto.email;
+        user.password = createUserDto.password;
+        return this.usersRepository.save(user);
+    }
 
-  async findOne(name: string): Promise<User | undefined> {
-    return this.users.find(user => user.name === name)
-  }
+    async findAll():Promise<User[]> {
+        return this.usersRepository.find();
+    }
 
-  findAll(): User[] {
-    return this.users;
-  }
+    async findOne(id: number): Promise<User | null> {
+        return this.usersRepository.findOneBy({id})
+    }
 
-  update(dto: UpdateUserDto) {
-    const updatedUsers = this.users.map(user => {
-      if (user.id == dto.id) {
-          user.name = dto.name
-          user.email = dto.email
-          user.password = dto.password
-      }
-      return "user  updated"
-    })
-  }
+    async update(id: number, user: Partial<User>): Promise<User> {
+        await this.usersRepository.update(id, user);
+        return this.usersRepository.findOne({where: {id}});
+    }
 
-  remove(user: User) {
-    let index = this.users.findIndex(el => el.name == user.name) // TODO: используй метод filter, посмотри как используется, этого достаточно
-    delete this.users[index]
-  }
+    async remove(id: number): Promise<void> {
+        await this.usersRepository.delete(id)
+    }
+
+
 }
